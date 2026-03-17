@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMS Screening Chart - Levenson's Criteria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; --bg: #eaeff2; }
+        body { font-family: 'Sarabun', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        
+        h2 { text-align: center; color: var(--primary); margin-bottom: 15px; border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        
+        .description-box { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid var(--accent); margin-bottom: 25px; font-size: 14px; line-height: 1.6; color: #555; }
+
+        .section { margin-bottom: 25px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; background: #fff; }
+        .section-title { font-weight: bold; color: var(--accent); display: block; margin-bottom: 15px; font-size: 1.2em; border-left: 5px solid var(--accent); padding-left: 10px; }
+        
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        label.topic-label { display: block; margin-bottom: 8px; font-weight: bold; color: #444; font-size: 15px; background: #f0f3f4; padding: 6px 12px; border-radius: 5px; }
+
+        /* การเลือกเวลาประเมิน (ตามต้นฉบับ) */
+        .time-group { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+        .time-group label { background: #fdfdfd; border: 1px solid #ccc; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-size: 12px; }
+        .time-group input[type="radio"] { display: none; }
+        .time-group label:has(input:checked) { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
+
+        /* UI ปุ่ม Yes/No แบบ 1 คอลัมน์ */
+        .q-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .q-text { font-weight: 600; color: #444; }
+        .btn-group { display: flex; gap: 8px; }
+        .btn-group label { cursor: pointer; padding: 6px 20px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; transition: 0.2s; text-align: center; min-width: 50px; }
+        .btn-group input { display: none; }
+
+        /* สีปุ่มตามสั่ง No แดง / Yes เขียว */
+        .btn-no:has(input:checked) { background: var(--danger); color: white; border-color: var(--danger); font-weight: bold; }
+        .btn-yes:has(input:checked) { background: var(--success); color: white; border-color: var(--success); font-weight: bold; }
+
+        input[type="text"], input[type="time"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: 'Sarabun'; }
+
+        .btn-add { display: block; width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+        .btn-add:hover { background: #1a252f; }
+
+        /* Result Alert */
+        #result-display { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; display: none; }
+        .high-risk { background: #fdeaea; color: #e74c3c; border: 1px solid #e74c3c; }
+        .low-risk { background: #e9f7ef; color: #27ae60; border: 1px solid #27ae60; }
+
+        /* ตารางแสดงผล (ตามต้นฉบับ) */
+        .table-wrapper { overflow-x: auto; margin-top: 30px; border: 1px solid #ddd; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; background: white; min-width: 800px; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: center; font-size: 13px; }
+        .head-col { background: #f8f9fa; font-weight: bold; text-align: left; width: 180px; position: sticky; left: 0; z-index: 10; border-right: 2px solid #ddd; }
+        .risk-row { background: #fff5f5; color: var(--danger); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>แบบประเมิน NMS (Neuroleptic Malignant Syndrome)</h2>
+    
+    <div class="description-box">
+        แบบประเมิน Neuroleptic Malignant Syndrome (NMS) ตามเกณฑ์ของ Levenson (1985) เป็นเครื่องมือทางคลินิกที่ใช้ช่วยคัดกรองและสนับสนุนการวินิจฉัยภาวะ NMS ในผู้ป่วยที่ได้รับยากลุ่ม antipsychotics หากพบ Major criteria อย่างน้อย 3 ข้อ หรือ Major criteria 2 ข้อร่วมกับ Minor criteria อย่างน้อย 4 ข้อ จะมีความเป็นไปได้สูงต่อการเกิด NMS และควรได้รับการประเมินและดูแลรักษาอย่างเร่งด่วนต่อไป
+    </div>
+
+    <form id="nmsForm">
+        <div class="section grid-3">
+            <div>
+                <label class="topic-label">เวลาที่ประเมิน (Time)</label>
+                <div class="time-group">
+                    <label><input type="radio" name="t_opt" value="manual" checked onchange="toggleTimeInput()"> ระบุเอง</label>
+                    <label><input type="radio" name="t_opt" value="10:00" onchange="toggleTimeInput()"> 10:00</label>
+                    <label><input type="radio" name="t_opt" value="14:00" onchange="toggleTimeInput()"> 14:00</label>
+                    <label><input type="radio" name="t_opt" value="18:00" onchange="toggleTimeInput()"> 18:00</label>
+                    <label><input type="radio" name="t_opt" value="22:00" onchange="toggleTimeInput()"> 22:00</label>
+                    <label><input type="radio" name="t_opt" value="02:00" onchange="toggleTimeInput()"> 02:00</label>
+                    <label><input type="radio" name="t_opt" value="06:00" onchange="toggleTimeInput()"> 06:00</label>
+                </div>
+                <input type="time" id="f_time">
+            </div>
+            <div>
+                <label class="topic-label">เวร (Shift)</label>
+                <select id="f_shift">
+                    <option value="">-- เลือกเวร --</option>
+                    <option value="เช้า">เวรเช้า (08-16)</option>
+                    <option value="บ่าย">เวรบ่าย (16-24)</option>
+                    <option value="ดึก">เวรดึก (24-08)</option>
+                </select>
+            </div>
+            <div>
+                <label class="topic-label">ผู้บันทึก</label>
+                <input type="text" id="f_user" placeholder="ชื่อ / รหัสพยาบาล">
+            </div>
+        </div>
+
+        <div class="section">
+            <span class="section-title">Major Criteria</span>
+            <div class="q-row">
+                <span class="q-text">1. ไข้ (Fever > 38°C)</span>
+                <div class="btn-group">
+                    <label class="btn-no"><input type="radio" name="mj1" value="0" checked> No</label>
+                    <label class="btn-yes"><input type="radio" name="mj1" value="1"> Yes</label>
+                </div>
+            </div>
+            <div class="q-row">
+                <span class="q-text">2. กล้ามเนื้อแข็งเกร็ง (Rigidity)</span>
+                <div class="btn-group">
+                    <label class="btn-no"><input type="radio" name="mj2" value="0" checked> No</label>
+                    <label class="btn-yes"><input type="radio" name="mj2" value="1"> Yes</label>
+                </div>
+            </div>
+            <div class="q-row">
+                <span class="q-text">3. ค่าเอนไซม์กล้ามเนื้อสูง (Elevated CPK)</span>
+                <div class="btn-group">
+                    <label class="btn-no"><input type="radio" name="mj3" value="0" checked> No</label>
+                    <label class="btn-yes"><input type="radio" name="mj3" value="1"> Yes</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <span class="section-title">Minor Criteria</span>
+            <div class="q-row">
+                <span class="q-text">1. หัวใจเต้นเร็ว (Tachycardia)</span>
+                <div class="btn-group">
+                    <label class="btn-no"><input type="radio" name="mi1" value="0" checked> No</label>
+                    <label class="btn-yes"><input type="radio" name="mi1" value="1"> Yes</label>
+                </div>
+            </div>
+            <div class="q-row">
+                <span class="q-text">2. ความดันโลหิตผิดปกติ (Abnormal BP)</span>
+                <div class="btn-group">
+                    <label class="btn-no"><input type="radio" name="mi2" value="0" checked> No</label>
+                    <label class="btn-yes"><input type="radio" name="mi2" value="1"> Yes</label>
+                </div>
+            </div>
+            <div class="q-row">
+                <span class="q-text">3. หายใจเร็ว (Tachypnea)</span>
+                <div class="btn-group">
+                    <label class="btn-no"><input type="radio" name="mi3" value="0" checked> No</label>
+                    <label class="btn-yes"><input type="radio" name="mi3" value="1"> Yes</label>
+                </div>
+            </div>
+            <div class="q-row">
+                <span class="q-text">4. ระดับความรู้สึกตัวเปลี่ยนแปลง (Altered Consciousness)</span>
+                <div class="btn-group">
+                    <label class="btn-no"><input type="radio" name="mi4" value="0" checked> No</label>
+                    <label class="btn-yes"><input type="radio" name="mi4" value="1"> Yes</label>
+                </div>
+            </div>
+            <div class="q-row">
+                <span class="q-text">5. เหงื่อออกมาก (Diaphoresis)</span>
+                <div class="btn-group">
+                    <label class="btn-no"><input type="radio" name="mi5" value="0" checked> No</label>
+                    <label class="btn-yes"><input type="radio" name="mi5" value="1"> Yes</label>
+                </div>
+            </div>
+            <div class="q-row">
+                <span class="q-text">6. เม็ดเลือดขาวสูง (Leukocytosis)</span>
+                <div class="btn-group">
+                    <label class="btn-no"><input type="radio" name="mi6" value="0" checked> No</label>
+                    <label class="btn-yes"><input type="radio" name="mi6" value="1"> Yes</label>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-display"></div>
+
+        <button type="button" class="btn-add" onclick="calculateNMS()">บันทึกข้อมูลและประเมินผล</button>
+    </form>
+
+    <div class="table-wrapper">
+        <table id="nmsTable">
+            <tr id="row_time"><td class="head-col">เวลา / เวร</td></tr>
+            <tr id="row_mj"><td class="head-col">Major Criteria (พบ)</td></tr>
+            <tr id="row_mi"><td class="head-col">Minor Criteria (พบ)</td></tr>
+            <tr id="row_result"><td class="head-col">ผลการวินิจฉัย</td></tr>
+            <tr id="row_user"><td class="head-col">ผู้บันทึก</td></tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    function toggleTimeInput() {
+        const timeOpt = document.querySelector('input[name="t_opt"]:checked').value;
+        const timeInput = document.getElementById('f_time');
+        timeInput.style.display = (timeOpt === 'manual') ? 'block' : 'none';
+    }
+
+    function calculateNMS() {
+        // Get Time Data
+        const timeOpt = document.querySelector('input[name="t_opt"]:checked').value;
+        const finalTime = (timeOpt === 'manual') ? document.getElementById('f_time').value : timeOpt;
+        const shift = document.getElementById('f_shift').value || '-';
+        const user = document.getElementById('f_user').value || '-';
+
+        if (timeOpt === 'manual' && !finalTime) { alert('กรุณาระบุเวลาครับ'); return; }
+
+        // Logic Calculation
+        let mjCount = 0;
+        for(let i=1; i<=3; i++) mjCount += parseInt(document.querySelector(`input[name="mj${i}"]:checked`).value);
+        
+        let miCount = 0;
+        for(let i=1; i<=6; i++) miCount += parseInt(document.querySelector(`input[name="mi${i}"]:checked`).value);
+
+        const isHighRisk = (mjCount >= 3) || (mjCount === 2 && miCount >= 4);
+        
+        // Display result alert
+        const resDiv = document.getElementById('result-display');
+        resDiv.style.display = 'block';
+        if(isHighRisk) {
+            resDiv.className = 'high-risk';
+            resDiv.innerText = `🚩 ผลการประเมิน: มีความเป็นไปได้สูงต่อการเกิด NMS (Major: ${mjCount}, Minor: ${miCount})`;
+        } else {
+            resDiv.className = 'low-risk';
+            resDiv.innerText = `✅ ผลการประเมิน: ยังไม่เข้าเกณฑ์เฝ้าระวังรุนแรง (Major: ${mjCount}, Minor: ${miCount})`;
+        }
+
+        // Update Table
+        document.getElementById('row_time').innerHTML += `<td><b>${finalTime}</b><br><small>${shift}</small></td>`;
+        document.getElementById('row_mj').innerHTML += `<td>${mjCount} / 3</td>`;
+        document.getElementById('row_mi').innerHTML += `<td>${miCount} / 6</td>`;
+        document.getElementById('row_result').innerHTML += `<td style="color:${isHighRisk?'red':'green'}">${isHighRisk?'High Risk':'Normal'}</td>`;
+        document.getElementById('row_user').innerHTML += `<td>${user}</td>`;
+    }
+</script>
+
+</body>
+</html>
